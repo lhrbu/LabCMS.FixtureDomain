@@ -1,6 +1,5 @@
 ﻿using LabCMS.FixtureDomain.Server.Controllers;
 using LabCMS.FixtureDomain.Server.Repositories;
-using LabCMS.FixtureDomain.Shared;
 using LabCMS.Seedwork;
 using LabCMS.Seedwork.FixtureDomain;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LabCMS.FixtureDomain.Server.Models;
 
 namespace LabCMS.FixtureDomain.Server.Filters
 {
@@ -22,7 +22,6 @@ namespace LabCMS.FixtureDomain.Server.Filters
             (_, object? id) = context.ActionArguments.FirstOrDefault(item => item.Key == "id");
             if (id is not null)
             {
-                context.HttpContext.Items.Add("id", id);
                 if (context.Controller is CheckinRecordsController)
                 {
                     ICheckRecord? checkRecord = await _repository.FixtureCheckinRecords.FindAsync(id);
@@ -30,7 +29,7 @@ namespace LabCMS.FixtureDomain.Server.Filters
                         context.Result = new NotFoundObjectResult($"Check in record {id} doesn't exist.");
                         return;
                     }
-                    context.HttpContext.Items.Add(id, checkRecord);
+                    context.HttpContext.Items.Add(nameof(CheckinRecord), checkRecord);
                 }
                 else if (context.Controller is CheckoutRecordsController)
                 {
@@ -39,7 +38,7 @@ namespace LabCMS.FixtureDomain.Server.Filters
                         context.Result = new NotFoundObjectResult($"Check out record {id} doesn't exist.");
                         return;
                     }
-                    context.HttpContext.Items.Add(id, checkRecord);
+                    context.HttpContext.Items.Add(nameof(CheckoutRecord), checkRecord);
                 }
             }
             await next();

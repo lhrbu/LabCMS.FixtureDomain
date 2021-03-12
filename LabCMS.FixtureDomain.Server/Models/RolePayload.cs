@@ -1,6 +1,7 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace LabCMS.FixtureDomain.Shared.ClientSideModels
+namespace LabCMS.FixtureDomain.Server.Models
 {
     public record RolePayload
     {

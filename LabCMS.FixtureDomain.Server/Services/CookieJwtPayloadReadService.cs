@@ -8,17 +8,16 @@ using System.Threading.Tasks;
 
 namespace LabCMS.FixtureDomain.Server.Services
 {
-    public class CookieJwtPayloadLoadService
+    public class CookieJwtPayloadReadService
     {
         private readonly JwtEncodeService _jwtEncodeService;
-        public CookieJwtPayloadLoadService(
+        public CookieJwtPayloadReadService(
             JwtEncodeService jwtEncodeService)
         { 
             _jwtEncodeService = jwtEncodeService;
         }
-        public TPayload Load<TPayload>(HttpContext httpContext,string cookieName,string secret)
+        public TPayload Read<TPayload>(HttpContext httpContext,string cookieName,string secret)
         {
-            var c = httpContext.Request.Cookies[cookieName];
             IDictionary<string,object?> dict = _jwtEncodeService.Decode(
                 httpContext.Request.Cookies[cookieName]!, secret)!;
             byte[] jsonbytes = JsonSerializer.SerializeToUtf8Bytes(dict);

@@ -4,8 +4,7 @@ using LabCMS.FixtureDomain.Server.Filters;
 using LabCMS.FixtureDomain.Server.Policies;
 using LabCMS.FixtureDomain.Server.Repositories;
 using LabCMS.FixtureDomain.Server.Services;
-using LabCMS.FixtureDomain.Shared;
-using LabCMS.FixtureDomain.Shared.ClientSideModels;
+using LabCMS.FixtureDomain.Server.Models;
 using LabCMS.Seedwork;
 using LabCMS.Seedwork.FixtureDomain;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +23,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    [ServiceFilter(typeof(RolePayloadLoadFilter))]
+    [ServiceFilter(typeof(RolePayloadReadFilter))]
     [ServiceFilter(typeof(CheckRecordFindByIdFilter))]
     [ServiceFilter(typeof(PermissionPolicyValidateFilter))]
     [ServiceFilter(typeof(CheckRecordLogFilter))]
@@ -48,7 +47,6 @@ namespace LabCMS.FixtureDomain.Server.Controllers
             var ddd = _repository.FixtureCheckoutRecords.AsNoTracking().ToArray();
             return _repository.FixtureCheckoutRecords.Where(item => item.ApplicantUserId == rolePayload.UserId)
                 .Include(item => item.Fixture)
-                //.Where(item=>item.Fixture!.InFixtureRoom)
                 .AsNoTracking().AsAsyncEnumerable();
         }
 
@@ -89,8 +87,6 @@ namespace LabCMS.FixtureDomain.Server.Controllers
             Fixture? fixture = await _repository.Fixtures.FindAsync(checkoutRecordInClient.FixtureNo);
             if(fixture is null)
             { return NotFound($"Fixture {checkoutRecordInClient.FixtureNo} doesn't exist!");}
-            // else if(!fixture.InFixtureRoom)
-            // { return NotFound($"Fixture {checkoutRecordInClient.FixtureNo} is not in fixture room!");}
 
             CheckoutRecord initRecord = _mapper.Map<CheckoutRecordPayload, CheckoutRecord>(checkoutRecordInClient);
             RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
@@ -107,7 +103,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
         public async ValueTask<ActionResult<CheckoutRecord>> CancelApplicationAsync(int id)
         {
             RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
-            CheckoutRecord checkoutRecord = (HttpContext.Items[id] as CheckoutRecord)!;
+            CheckoutRecord checkoutRecord = (HttpContext.Items[nameof(CheckoutRecord)] as CheckoutRecord)!;
             if (checkoutRecord.Status != CheckRecordStatus.End)
             {
                 checkoutRecord.Status = CheckRecordStatus.Cancelled;
@@ -121,15 +117,14 @@ namespace LabCMS.FixtureDomain.Server.Controllers
 
         [HttpPost("TestRoomApprove/{id}")]
         [RolePayloadRequired]
-        [PermissionPolicy(typeof(TestFieldResponseAuthorizePolicy))]
+        [PermissionPolicy(typeof(TestFieldResponsibleAuthorizePolicy))]
         public async ValueTask<CheckoutRecord> TestRoomApproveAsync(int id)
         {
-            CheckoutRecord checkoutRecord = (HttpContext.Items[id] as CheckoutRecord)!;
             RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
+            CheckoutRecord checkoutRecord = (HttpContext.Items[nameof(CheckoutRecord)] as CheckoutRecord)!;
 
             checkoutRecord.Status = CheckRecordStatus.TestRoomApproved;
             checkoutRecord.TestRoomApproverUserId = rolePayload.UserId;
-
             _repository.Update(checkoutRecord);
             await _repository.SaveChangesAsync();
             return checkoutRecord;
@@ -137,55 +132,23 @@ namespace LabCMS.FixtureDomain.Server.Controllers
 
         [HttpPost("FixtureRoomApprove/{fixtureNo}")]
         [RolePayloadRequired]
-        public async ValueTask<ActionResult<CheckoutRecord>> FixtureRoomApproveAsync(int fixtureNo)
+        public async ValueTask<ActionResult<CheckoutRecord>> FixtureRoomApproveAsync(int fixtureNo,
+            [FromServices]IFixtureStorageRecordService storageRecordService)
         {
             RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
             if (rolePayload.AuthLevel < 4) { return Unauthorized($"{rolePayload.UserId} AuthLevel is not allowed to do approve here");}
+            
+            Fixture? fixture = await _repository.Fixtures.FindAsync(fixtureNo);
             CheckoutRecord? checkoutRecord = _repository.FixtureCheckoutRecords.Where(item => item.FixtureNo == fixtureNo)
                 .FirstOrDefault(item => item.Status == CheckRecordStatus.TestRoomApproved);
-            if (checkoutRecord is null)
+            if (checkoutRecord==null || fixture == null)
             { return NotFound($"{fixtureNo} is not in valid status!");}
 
             checkoutRecord.Status = CheckRecordStatus.FixtureRoomApproved;
             checkoutRecord.FixtureRoomApproverId = rolePayload.UserId;
+            storageRecordService.Checkout(fixture,checkoutRecord);
             await _repository.SaveChangesAsync();
             return Ok(checkoutRecord);
         }
-
-        #region cancelled web api
-        //[HttpPost("FixtureRoomApprove/{id}")]
-        //[RolePayloadRequired]
-        //[PermissionPolicy(typeof(FixtureRoomAuthorizePolicy))]
-        //public async ValueTask<CheckoutRecord> FixtureRoomApproveAsync(int id)
-        //{
-        //    CheckoutRecord checkoutRecord = (HttpContext.Items[id] as CheckoutRecord)!;
-        //    RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
-
-        //    checkoutRecord.Status = CheckRecordStatus.FixtureRoomApproved;
-        //    checkoutRecord.FixtureRoomApproverId = rolePayload.UserId;
-
-        //    _repository.Update(checkoutRecord);
-        //    await _repository.SaveChangesAsync();
-        //    return checkoutRecord;
-        //}
-
-        //[HttpPost("End/{id}")]
-        //[RolePayloadRequired]
-        //[PermissionPolicy(typeof(ScannerOnlyPolicy))]
-
-        //public async ValueTask<CheckoutRecord> EndAsync(int id)
-        //{
-        //    CheckoutRecord checkoutRecord = (HttpContext.Items[id] as CheckoutRecord)!;
-        //    checkoutRecord.Status = CheckRecordStatus.End;
-        //    checkoutRecord.CheckoutDate = DateTimeOffset.Now;
-        //    _repository.Update(checkoutRecord);
-        //    await _repository.Entry(checkoutRecord).Reference(item=>item.Fixture).LoadAsync();
-        //    await _repository.Entry(checkoutRecord).Reference(item=>item.Applicant).LoadAsync();
-        //    string date = DateTimeOffset.Now.LocalDateTime.ToString("yyyy-MM-dd HH:mm");
-        //    checkoutRecord.Fixture!.StorageInformation = $"[ {date} ]: Check out by {checkoutRecord.ApplicantUserId}";
-        //    await _repository.SaveChangesAsync();
-        //    return checkoutRecord;
-        //}
-        #endregion
     }
 }

@@ -4,7 +4,7 @@ using LabCMS.FixtureDomain.Server.Filters;
 using LabCMS.FixtureDomain.Server.Policies;
 using LabCMS.FixtureDomain.Server.Repositories;
 using LabCMS.FixtureDomain.Server.Services;
-using LabCMS.FixtureDomain.Shared.ClientSideModels;
+using LabCMS.FixtureDomain.Server.Models;
 using LabCMS.Seedwork;
 using LabCMS.Seedwork.FixtureDomain;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +21,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ServiceFilter(typeof(RolePayloadLoadFilter))]
+    [ServiceFilter(typeof(RolePayloadReadFilter))]
     [ServiceFilter(typeof(PermissionPolicyValidateFilter))]
     public class RolesController : ControllerBase
     {

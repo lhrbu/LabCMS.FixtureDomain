@@ -2,8 +2,7 @@
 using LabCMS.FixtureDomain.Server.Extensions;
 using LabCMS.FixtureDomain.Server.Policies;
 using LabCMS.FixtureDomain.Server.Repositories;
-using LabCMS.FixtureDomain.Shared;
-using LabCMS.FixtureDomain.Shared.ClientSideModels;
+using LabCMS.FixtureDomain.Server.Models;
 using LabCMS.Seedwork;
 using LabCMS.Seedwork.FixtureDomain;
 using Microsoft.AspNetCore.Http;
@@ -39,19 +38,23 @@ namespace LabCMS.FixtureDomain.Server.Filters
             PermissionPolicyAttribute? attribute = context.GetMethodAttribute<PermissionPolicyAttribute>();
             if (attribute is not null)
             {
-
                 RolePayload rolePayload = (context.HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
-                int id = (int)context.HttpContext.Items["id"]!;
-                ICheckRecord checkRecord = (context.HttpContext.Items[id] as ICheckRecord)!;
+                
+                ICheckRecord? checkRecord = context.HttpContext.Items switch{
+                    var items when items.ContainsKey(nameof(CheckinRecord)) => (items[nameof(CheckinRecord)] as ICheckRecord)!,
+                    var items when items.ContainsKey(nameof(CheckoutRecord)) => (items[nameof(CheckoutRecord)] as ICheckRecord)!,
+                    _ => null 
+                };
 
                 IEnumerable<IPermissionPolicy> permissionPolicies = attribute.PolicyTypes
                     .Select(type=>(_serviceProvider.GetRequiredService(type) as IPermissionPolicy)!);
 
                 foreach(IPermissionPolicy permissionPolicy in permissionPolicies)
                 {
-                    if (!await permissionPolicy.ValidateAsync(rolePayload, checkRecord))
-                    {
-                        context.Result = new UnauthorizedResult(); return;
+                    if (!await permissionPolicy.ValidateAsync(rolePayload, checkRecord!))
+                    { 
+                        context.Result = new UnauthorizedResult(); 
+                        return;
                     }
                 }
             }

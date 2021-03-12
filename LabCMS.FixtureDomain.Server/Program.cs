@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using LabCMS.FixtureDomain.Server.Services;
-using LabCMS.FixtureDomain.Shared;
 using LabCMS.Seedwork.FixtureDomain;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

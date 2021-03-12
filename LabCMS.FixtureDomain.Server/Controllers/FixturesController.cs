@@ -3,8 +3,7 @@ using LabCMS.FixtureDomain.Server.Attributes;
 using LabCMS.FixtureDomain.Server.Filters;
 using LabCMS.FixtureDomain.Server.Repositories;
 using LabCMS.FixtureDomain.Server.Services;
-using LabCMS.FixtureDomain.Shared;
-using LabCMS.FixtureDomain.Shared.ClientSideModels;
+using LabCMS.FixtureDomain.Server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -22,7 +21,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ServiceFilter(typeof(RolePayloadLoadFilter))]
+    [ServiceFilter(typeof(RolePayloadReadFilter))]
     public class FixturesController:ControllerBase
     {
         private readonly ILogger<FixturesController> _logger;

@@ -1,4 +1,4 @@
-﻿using LabCMS.FixtureDomain.Shared;
+﻿using LabCMS.FixtureDomain.Server.Models;
 using LabCMS.Seedwork.FixtureDomain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -15,8 +15,8 @@ namespace LabCMS.FixtureDomain.Server.Filters
         private readonly ILogger<CheckRecordLogFilter> _logger;
         public CheckRecordLogFilter(ILogger<CheckRecordLogFilter> logger) => _logger = logger;
 
-        private static Dictionary<string, object> _checkOutRecordTypeToken = new() { ["CheckRecordType"] = nameof(CheckoutRecord) };
-        private static Dictionary<string, object> _checkInRecordTypeToken = new() { ["CheckRecordType"] = nameof(CheckinRecord) };
+        private readonly static Dictionary<string, object> _checkOutRecordTypeToken = new() { ["CheckRecordType"] = nameof(CheckoutRecord) };
+        private readonly static Dictionary<string, object> _checkInRecordTypeToken = new() { ["CheckRecordType"] = nameof(CheckinRecord) };
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             object? result = (await next()).Result;

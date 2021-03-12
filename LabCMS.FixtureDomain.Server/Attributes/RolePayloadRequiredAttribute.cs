@@ -1,4 +1,4 @@
-﻿using LabCMS.FixtureDomain.Shared.ClientSideModels;
+﻿using LabCMS.FixtureDomain.Server.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,5 @@ namespace LabCMS.FixtureDomain.Server.Attributes
 {
     public class RolePayloadRequiredAttribute:Attribute
     {
-        public string CookieName { get; } = nameof(RolePayload);
-        public string HttpContextItemName { get; } = nameof(RolePayload);
     }
 }

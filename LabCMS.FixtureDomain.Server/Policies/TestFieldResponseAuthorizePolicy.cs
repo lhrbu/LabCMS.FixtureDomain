@@ -1,19 +1,18 @@
 ﻿using LabCMS.FixtureDomain.Server.Repositories;
-using LabCMS.FixtureDomain.Shared;
-using LabCMS.FixtureDomain.Shared.ClientSideModels;
 using LabCMS.Seedwork;
 using LabCMS.Seedwork.FixtureDomain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LabCMS.FixtureDomain.Server.Models;
 
 namespace LabCMS.FixtureDomain.Server.Policies
 {
-    public class TestFieldResponseAuthorizePolicy : IPermissionPolicy
+    public class TestFieldResponsibleAuthorizePolicy : IPermissionPolicy
     {
         private readonly Repository _repository;
-        public TestFieldResponseAuthorizePolicy(Repository repository) => _repository = repository;
+        public TestFieldResponsibleAuthorizePolicy(Repository repository) => _repository = repository;
 
         public async ValueTask<bool> ValidateAsync(RolePayload rolePayload, ICheckRecord checkRecord) =>
             ((int)rolePayload.AuthLevel >= (int)CheckRecordStatus.TestRoomApproved) &&

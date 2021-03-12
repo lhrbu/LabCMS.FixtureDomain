@@ -9,7 +9,6 @@ using LabCMS.FixtureDomain.Server.Models;
 using LabCMS.FixtureDomain.Server.Policies;
 using LabCMS.FixtureDomain.Server.Repositories;
 using LabCMS.FixtureDomain.Server.Services;
-using LabCMS.FixtureDomain.Shared;
 using LabCMS.Seedwork;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +25,7 @@ using Npgsql;
 using Raccoon.Devkits.EmailToolkit;
 using Raccoon.Devkits.JwtAuthorization;
 using Raccoon.Devkits.JwtAuthroization.Services;
+using LabCMS.FixtureDomain.Server.Profiles;
 using Serilog;
 
 namespace LabCMS.FixtureDomain.Server
@@ -43,7 +43,7 @@ namespace LabCMS.FixtureDomain.Server
         public void ConfigureFilters(IServiceCollection services)
         {
             services.AddTransient<CheckRecordLogFilter>();
-            services.AddTransient<RolePayloadLoadFilter>();
+            services.AddTransient<RolePayloadReadFilter>();
 
             services.AddScoped<CheckRecordFindByIdFilter>();
             services.AddScoped<PermissionPolicyValidateFilter>();
@@ -52,7 +52,7 @@ namespace LabCMS.FixtureDomain.Server
         public void ConfigurePolicies(IServiceCollection services)
         {
             services.AddTransient<ApplicantOnlyPolicy>();
-            services.AddTransient<TestFieldResponseAuthorizePolicy>();
+            services.AddTransient<TestFieldResponsibleAuthorizePolicy>();
             services.AddTransient<FixtureRoomAuthorizePolicy>();
             services.AddTransient<ScannerOnlyPolicy>();
         }
@@ -63,10 +63,7 @@ namespace LabCMS.FixtureDomain.Server
 
             services.AddControllers().AddJsonOptions(options=>options.JsonSerializerOptions.PropertyNamingPolicy=null);
             
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "LabCMS.FixtureDomain.Server", Version = "v1" });
-            });
+            services.AddSwaggerGen(c =>c.SwaggerDoc("v1", new OpenApiInfo { Title = "LabCMS.FixtureDomain.Server", Version = "v1" }));
             services.AddDbContextPool<Repository>(options => {
                 options.UseNpgsql(Configuration.GetConnectionString(nameof(Repository)));
                 options.LogTo(log => Log.Information(log), LogLevel.Warning);
@@ -75,12 +72,13 @@ namespace LabCMS.FixtureDomain.Server
                 options.UseNpgsql(Configuration.GetConnectionString(nameof(FixtureYearUsedIndicesRepository))));
             services.AddAutoMapper(typeof(AutoMapperProfile));
             services.AddTransient<JwtEncodeService>();
-            services.AddTransient<CookieJwtPayloadLoadService>();
+            services.AddTransient<CookieJwtPayloadReadService>();
             services.AddTransient<IFixtureIndexGenerator, DatabaseFixtureIndexGenerator>();
             services.AddTransient<IFixtureNoGenerator, FixtureNoGenerator>();
             services.AddTransient<RandomPasswordGenerator>();
+            services.AddTransient<IFixtureStorageRecordService,FixtureStorageRecordService>();
 
-            services.AddEmailSendService("****", "****", "*****");
+            // services.AddEmailSendService("****", "****", "*****");
 
             ConfigureFilters(services);
             ConfigurePolicies(services);
