@@ -26,17 +26,14 @@ namespace LabCMS.FixtureDomain.Server.Controllers
     {
         private readonly ILogger<FixturesController> _logger;
         private readonly Repository _repository;
-        private readonly IFixtureIndexGenerator _fixtureIndexGenerator;
-        private readonly IFixtureNoGenerator _fixtureNoGenerator;
+        private readonly FixtureNoGenerator _fixtureNoGenerator;
         public FixturesController(
             Repository repository,
             ILogger<FixturesController> logger,
-            IFixtureIndexGenerator fixtureIndexGenerator,
-            IFixtureNoGenerator fixtureNoGenerator)
+            FixtureNoGenerator fixtureNoGenerator)
         { 
             _repository = repository;
             _logger = logger;
-            _fixtureIndexGenerator = fixtureIndexGenerator;
             _fixtureNoGenerator = fixtureNoGenerator;
         }
         [HttpGet]
@@ -52,10 +49,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
         {
             RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
             if (rolePayload.AuthLevel < 4) { return Unauthorized(); }
-
-            int index = await _fixtureIndexGenerator.GetThenIncreaseAsync(year);
-            fixture.No = _fixtureNoGenerator.Create(index, fixture);
-
+            fixture.No =await _fixtureNoGenerator.CreateAsync(fixture.TestFieldName,year);
             await _repository.Fixtures.AddAsync(fixture);
             await _repository.SaveChangesAsync();
             return Ok();

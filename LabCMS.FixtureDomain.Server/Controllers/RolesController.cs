@@ -41,7 +41,6 @@ namespace LabCMS.FixtureDomain.Server.Controllers
         public IAsyncEnumerable<Role> GetAllAsync() => _repository.FixtureDomainRoles.AsAsyncEnumerable();
 
         [HttpPost("ResetPassword")]
-        [RolePayloadRequired]
         [PermissionPolicy(typeof(ApplicantOnlyPolicy))]
 
         public async ValueTask<IActionResult> ResetPasswordAsync()
@@ -66,6 +65,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
         }
 
         [HttpPost]
+        [RolePayloadRequired(false)]
         public async ValueTask<IActionResult> SignInCheckAsync([FromQuery]string userId,[FromQuery]string passwordMD5)
         {
             Role? role = await _repository.FixtureDomainRoles.FindAsync(userId);

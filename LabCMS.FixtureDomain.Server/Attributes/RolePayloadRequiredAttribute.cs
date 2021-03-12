@@ -8,5 +8,10 @@ namespace LabCMS.FixtureDomain.Server.Attributes
 {
     public class RolePayloadRequiredAttribute:Attribute
     {
+        public bool Required { get; }
+        public RolePayloadRequiredAttribute(bool required=true)
+        {
+            Required = required;
+        }
     }
 }

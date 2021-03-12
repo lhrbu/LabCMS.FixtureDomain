@@ -6,6 +6,11 @@
 	  <UserSecretsId>ca5b559d-71d6-4d84-9766-e5d6ed4e193b</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="C:\Users\lhrbuxiaoxin\.nuget\packages\raccoon.devkits.jwtauthorization\2.1.0\contentFiles\any\net5.0\Raccoon.Devkits.JwtAuthorization.deps.json" />
+    <Content Remove="C:\Users\lhrbuxiaoxin\.nuget\packages\raccoon.devkits.jwtauthorization\2.1.0\contentFiles\any\net5.0\web.config" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <Content Include="logs\checkinrecord.log">
@@ -20,15 +25,15 @@
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
     <PackageReference Include="LabCMS.Seedwork" Version="1.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.3">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
     <PackageReference Include="Raccoon.Devkits.EmailToolkit" Version="1.0.0" />
     <PackageReference Include="Raccoon.Devkits.JwtAuthorization" Version="2.1.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="3.4.1-dev-00188" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.0.7" />
+    <PackageReference Include="Serilog.AspNetCore" Version="4.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.0" />
   </ItemGroup>
 
 </Project>

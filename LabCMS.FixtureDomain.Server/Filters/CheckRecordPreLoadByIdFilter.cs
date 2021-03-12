@@ -12,10 +12,10 @@ using LabCMS.FixtureDomain.Server.Models;
 
 namespace LabCMS.FixtureDomain.Server.Filters
 {
-    public class CheckRecordFindByIdFilter : IAsyncActionFilter
+    public class CheckRecordPreLoadByIdFilter : IAsyncActionFilter
     {
         private readonly Repository _repository;
-        public CheckRecordFindByIdFilter(Repository repository)
+        public CheckRecordPreLoadByIdFilter(Repository repository)
         { _repository = repository; }
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {

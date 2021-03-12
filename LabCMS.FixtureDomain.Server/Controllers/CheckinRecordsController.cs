@@ -24,7 +24,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ServiceFilter(typeof(RolePayloadReadFilter))]
-    [ServiceFilter(typeof(CheckRecordFindByIdFilter))]
+    [ServiceFilter(typeof(CheckRecordPreLoadByIdFilter))]
     [ServiceFilter(typeof(PermissionPolicyValidateFilter))]
     [ServiceFilter(typeof(CheckRecordLogFilter))]
     public class CheckinRecordsController : ControllerBase
@@ -40,7 +40,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
         }
 
         [HttpGet]
-        [RolePayloadRequired]
+        [PermissionPolicy(typeof(ScannerOnlyPolicy))]
         public IAsyncEnumerable<CheckinRecord> GetCheckinRecordsHistory()
         {
             RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
@@ -49,7 +49,6 @@ namespace LabCMS.FixtureDomain.Server.Controllers
         }
 
         [HttpGet("FixtureRoomApproverTodo")]
-        [RolePayloadRequired]
         public IAsyncEnumerable<CheckinRecord> GetFixtureRoomApproverTodoAsync()
         {
             RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
@@ -59,12 +58,11 @@ namespace LabCMS.FixtureDomain.Server.Controllers
         }
 
         [HttpPost("FixtureRoomApprove/{fixtureNo}")]
-        [RolePayloadRequired]
+        [PermissionPolicy(typeof(ScannerOnlyPolicy))]
         public async ValueTask<ActionResult<CheckinRecord>> FixtureRoomApproveAsync(int fixtureNo,
             [FromServices]IFixtureStorageRecordService fixtureStorageRecordService)
         {
             RolePayload rolePayload = (HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
-            if (rolePayload.AuthLevel < 4) { return Unauthorized($"{rolePayload.UserId} AuthLevel is not allowed to do approve here"); }
 
             Fixture? fixture = await _repository.Fixtures.FindAsync(fixtureNo);
             CheckoutRecord? checkoutRecord = _repository.FixtureCheckoutRecords
@@ -81,7 +79,7 @@ namespace LabCMS.FixtureDomain.Server.Controllers
 
             await _repository.AddAsync(checkinRecord);
             checkoutRecord.Status = CheckRecordStatus.End;
-            fixtureStorageRecordService.Checkin(fixture,checkinRecord);
+            await fixtureStorageRecordService.CheckinAsync(fixture,checkinRecord);
             await _repository.SaveChangesAsync();
             return Ok(checkinRecord);
         }

@@ -30,7 +30,7 @@ namespace LabCMS.FixtureDomain.Server.Filters
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             RolePayloadRequiredAttribute? attribute = context.GetMethodAttribute<RolePayloadRequiredAttribute>();
-            if (attribute is not null)
+            if (attribute==null || attribute.Required)
             {
                 try{
                     RolePayload rolePayload =_cookieJwtPayloadReadService.Read<RolePayload>(

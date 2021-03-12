@@ -1,6 +1,6 @@
 using System;
 using LabCMS.FixtureDomain.Server;
-using LabCMS.FixtureDomain.Shared.ClientSideModels;
+using LabCMS.FixtureDomain.Server.Models;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;

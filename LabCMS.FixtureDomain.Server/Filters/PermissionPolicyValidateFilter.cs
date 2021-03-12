@@ -38,20 +38,30 @@ namespace LabCMS.FixtureDomain.Server.Filters
             PermissionPolicyAttribute? attribute = context.GetMethodAttribute<PermissionPolicyAttribute>();
             if (attribute is not null)
             {
-                RolePayload rolePayload = (context.HttpContext.Items[nameof(RolePayload)] as RolePayload)!;
-                
+                RolePayload? rolePayload = (context.HttpContext.Items[nameof(RolePayload)] as RolePayload);
+                if(rolePayload is null)
+                {
+                    context.Result = new UnauthorizedResult();
+                    return;
+                }
+
                 ICheckRecord? checkRecord = context.HttpContext.Items switch{
                     var items when items.ContainsKey(nameof(CheckinRecord)) => (items[nameof(CheckinRecord)] as ICheckRecord)!,
                     var items when items.ContainsKey(nameof(CheckoutRecord)) => (items[nameof(CheckoutRecord)] as ICheckRecord)!,
                     _ => null 
                 };
+                if(checkRecord is null)
+                {
+                    context.Result = new NotFoundObjectResult($"Check Record not preloaded before validate!");
+                    return;
+                }
 
                 IEnumerable<IPermissionPolicy> permissionPolicies = attribute.PolicyTypes
                     .Select(type=>(_serviceProvider.GetRequiredService(type) as IPermissionPolicy)!);
 
                 foreach(IPermissionPolicy permissionPolicy in permissionPolicies)
                 {
-                    if (!await permissionPolicy.ValidateAsync(rolePayload, checkRecord!))
+                    if (!await permissionPolicy.ValidateAsync(rolePayload, checkRecord))
                     { 
                         context.Result = new UnauthorizedResult(); 
                         return;

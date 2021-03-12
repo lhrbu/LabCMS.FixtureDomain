@@ -45,7 +45,7 @@ namespace LabCMS.FixtureDomain.Server
             services.AddTransient<CheckRecordLogFilter>();
             services.AddTransient<RolePayloadReadFilter>();
 
-            services.AddScoped<CheckRecordFindByIdFilter>();
+            services.AddScoped<CheckRecordPreLoadByIdFilter>();
             services.AddScoped<PermissionPolicyValidateFilter>();
         }
 
@@ -73,10 +73,9 @@ namespace LabCMS.FixtureDomain.Server
             services.AddAutoMapper(typeof(AutoMapperProfile));
             services.AddTransient<JwtEncodeService>();
             services.AddTransient<CookieJwtPayloadReadService>();
-            services.AddTransient<IFixtureIndexGenerator, DatabaseFixtureIndexGenerator>();
-            services.AddTransient<IFixtureNoGenerator, FixtureNoGenerator>();
+            services.AddTransient<FixtureNoGenerator>();
             services.AddTransient<RandomPasswordGenerator>();
-            services.AddTransient<IFixtureStorageRecordService,FixtureStorageRecordService>();
+            services.AddScoped<IFixtureStorageRecordService,FixtureStorageRecordService>();
 
             // services.AddEmailSendService("****", "****", "*****");
 
