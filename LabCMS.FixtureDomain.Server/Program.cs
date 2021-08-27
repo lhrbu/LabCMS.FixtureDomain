@@ -1,14 +1,25 @@
+using System;
+using System.Reflection;
+using System.Runtime.Loader;
+using System.Text.Json;
+using LabCMS.FixtureDomain.Server.Repositories;
+using LabCMS.FixtureDomain.Shared.Events;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options=>
+    options.JsonSerializerOptions.PropertyNamingPolicy=null);
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "LabCMS.FixtureDomain.Server", Version = "v1" });
 });
+builder.Services.AddDbContext<FixtureDomainRepository>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString(nameof(FixtureDomainRepository))));
 
 var app = builder.Build();
 

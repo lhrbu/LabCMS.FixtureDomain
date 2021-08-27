@@ -5,10 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace LabCMS.FixtureDomain.Shared.Models
 {
     public record Fixture(
+
         string ProjectShortName,
         TestField TestField,
         string SetIndex)
@@ -19,7 +21,9 @@ namespace LabCMS.FixtureDomain.Shared.Models
 
         [NotMapped]
         public string Description => $"{ProjectShortName}-{this.TestField.ToString().First()}-{SetIndex}";
-        public string StorageInformation { get; set; } = null!;
+        
+        public FixtureStatus Status { get; set; }
+        public string? StorageInformation { get; set; }
         public int ShelfNo { get; set; }
         public int FloorNo { get; set; }
         [NotMapped]
