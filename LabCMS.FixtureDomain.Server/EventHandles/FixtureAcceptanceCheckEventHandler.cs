@@ -6,7 +6,6 @@ using LabCMS.FixtureDomain.Shared.Models;
 namespace LabCMS.FixtureDomain.Server.EventHandles;
 public class FixtureAcceptanceCheckEventHandler : FixtureEventHandler
 {
-    public FixtureAcceptanceCheckEventHandler() : base(null) { }
     protected FixtureAcceptanceCheckEventHandler(FixtureDomainRepository repository)
         : base(repository) { }
     public override async ValueTask HandleAsync(FixtureEvent fixtureEvent)

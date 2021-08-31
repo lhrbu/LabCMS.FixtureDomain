@@ -29,27 +29,25 @@ public class FixtureEventHandlersFactory
 
                 Func<ValueTask> actionWrap = async () =>
                 {
-                    //var proceed = invocation.CaptureProceedInfo();
+                    var proceed = invocation.CaptureProceedInfo();
                     FixtureEventHandler target = (invocation.InvocationTarget as FixtureEventHandler)!;
                     FixtureEvent fixtureEvent = (args[0] as FixtureEvent)!;
                     await target.HandleAsync(fixtureEvent);
                     
-                    //dynamic ret = invocation.Method!.Invoke(invocation.InvocationTarget, invocation.Arguments)!;
-                    //await ret;
-                    //FixtureEventHandler target = (invocation.InvocationTarget as FixtureEventHandler)!;
-                    //FixtureEvent fixtureEvent = (args[0] as FixtureEvent)!;
+                    
                     await target.Repository.FixtureEventsInDatabase.AddAsync(
                         FixtureEventInDatabase.GetEntity(fixtureEvent));
                     await target.Repository.SaveChangesAsync();
-                    //proceed.Invoke();
+                    proceed.Invoke();
                 };
                 invocation.ReturnValue = actionWrap.Invoke();
             }
             else { invocation.Proceed(); }
         }
     }
-    private static ProxyGenerator _generator = new();
-    private static Type[] _ctorArgTypes = new[] { typeof(FixtureDomainRepository)};
+    private readonly ProxyGenerator _generator = new();
+    private readonly Type[] _ctorArgTypes = new[] { typeof(FixtureDomainRepository)};
+    private readonly IInterceptor _interceptor = new FixtureEventHandlerInterceptor();
     public TFixtureEventHandler Create<TFixtureEventHandler>(
         FixtureDomainRepository repository)
         where TFixtureEventHandler : FixtureEventHandler
@@ -57,7 +55,7 @@ public class FixtureEventHandlersFactory
         ConstructorInfo constructorInfo = typeof(TFixtureEventHandler).GetConstructor( 
             BindingFlags.Instance|BindingFlags.NonPublic,_ctorArgTypes)!;
         TFixtureEventHandler target = (constructorInfo.Invoke(new object[] { repository }) as TFixtureEventHandler)!;
-        return _generator.CreateClassProxyWithTarget<TFixtureEventHandler>(
-            target, new FixtureEventHandlerInterceptor());
+        return (_generator.CreateClassProxyWithTarget(typeof(TFixtureEventHandler),target,
+                new object[] { repository},_interceptor) as TFixtureEventHandler)!;
     }
 }
