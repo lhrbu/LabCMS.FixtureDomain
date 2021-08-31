@@ -31,7 +31,7 @@ namespace LabCMS.FixtureDomain.Shared.Models
         public Fixture? Fixture { get; set; }
         public string ContentTypeFullName { get; private set; }
         public string Content { get; private set; }
-        public FixtureEvent? GetPayload() =>
+        public FixtureEvent? GetEvent() =>
             JsonSerializer.Deserialize(Content, _assembly.GetType(ContentTypeFullName)!) as FixtureEvent;
         private static readonly Assembly _assembly = typeof(FixtureEvent).Assembly;
     

@@ -14,9 +14,10 @@ namespace LabCMS.FixtureDomain.Shared.Models
         Unknown = 0,
         Registered,
         AcceptanceChecked,
-        InternalCheckout,
+        InternalCheckoutApply,
         ExternalCheckoutApply,
         ExternalCheckoutApprove,
+        CheckedOut,
         FixtureRoom
     }
 }

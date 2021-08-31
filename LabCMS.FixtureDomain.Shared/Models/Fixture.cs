@@ -30,5 +30,11 @@ namespace LabCMS.FixtureDomain.Shared.Models
         public string LocationNo => $"{ShelfNo}-{FloorNo}";
         public string? AssetNo { get; set; }
         public string? Comment { get; set; }
+
+        public bool CanCheckout() =>
+            Status != FixtureStatus.CheckedOut &&
+            Status != FixtureStatus.InternalCheckoutApply &&
+            Status != FixtureStatus.ExternalCheckoutApply &&
+            Status != FixtureStatus.ExternalCheckoutApprove;
     }
 }
