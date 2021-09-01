@@ -1,4 +1,5 @@
 ﻿
+using LabCMS.FixtureDomain.Server.Models;
 using LabCMS.FixtureDomain.Server.Repositories;
 using LabCMS.FixtureDomain.Shared.Events;
 using LabCMS.FixtureDomain.Shared.Models;
@@ -11,7 +12,6 @@ public class FixtureExternalCheckoutApproveEventHandler : FixtureEventHandler
         : base(repository) { }
     public override async ValueTask HandleAsync(FixtureEvent fixtureEvent)
     {
-
         Fixture fixture = await FindFixtureAsync(fixtureEvent);
         if (fixture.Status is FixtureStatus.ExternalCheckoutApply)
         {
@@ -23,14 +23,19 @@ public class FixtureExternalCheckoutApproveEventHandler : FixtureEventHandler
                 .LastOrDefault(item => item.ContentTypeFullName ==
                     typeof(FixtureExternalCheckoutApplyEvent).FullName)?
                 .GetEvent() as FixtureExternalCheckoutApplyEvent;
-            try
-            {
-                Role? role = await Repository.Roles.FindAsync(applyEvent.ApplicantUserId);
-                EmailSendService emailSendService = new("***", "***",
-                    "***");
-                _ = emailSendService.SendEmailAsync("", "", "", "");
-            }
-            catch { }
+            if(applyEvent == null)
+            { throw new InvalidOperationException(
+                $"Can't find apply event for this approve event! Fixture No:{fixtureEvent.FixtureNo}");}
+            Role? role = (await Repository.Roles.FindAsync(applyEvent?.ApplicantUserId));
+            if(role == null)
+            { throw new InvalidOperationException($"Applicant: {applyEvent.ApplicantUserId} doesn't exist!");}
+            
+
+            await EmailChannel.AddNotificationEmailAsync(
+            "HNTC_Fixture@Hella.com", new[] { role.Email },
+            $"no-reply: Fixture {fixtureEvent.FixtureNo} checkout approved",
+            "<div>Check the link:</div><a href=\"http://10.99.159.149:83/\">link</a>");
         }
+        else { throw new InvalidOperationException($"Fixture No: ${fixtureEvent.FixtureNo} is not in Apply status."); }
     }
 }

@@ -26,25 +26,26 @@ public class FixtureEventHandlersFactory
                 {
                     throw new ArgumentException($"Ivalid kind of fixture event is given");
                 }
-
-                Func<ValueTask> actionWrap = async () =>
-                {
-                    var proceed = invocation.CaptureProceedInfo();
-                    FixtureEventHandler target = (invocation.InvocationTarget as FixtureEventHandler)!;
-                    FixtureEvent fixtureEvent = (args[0] as FixtureEvent)!;
-                    await target.HandleAsync(fixtureEvent);
-                    
-                    
-                    await target.Repository.FixtureEventsInDatabase.AddAsync(
-                        FixtureEventInDatabase.GetEntity(fixtureEvent));
-                    await target.Repository.SaveChangesAsync();
-                    proceed.Invoke();
-                };
-                invocation.ReturnValue = actionWrap.Invoke();
+                invocation.ReturnValue = InterceptAsync(invocation);
             }
             else { invocation.Proceed(); }
         }
+
+        private async ValueTask InterceptAsync(IInvocation invocation)
+        {
+            var proceed = invocation.CaptureProceedInfo();
+            FixtureEventHandler target = (invocation.InvocationTarget as FixtureEventHandler)!;
+            FixtureEvent fixtureEvent = (invocation.Arguments[0] as FixtureEvent)!;
+            await target.HandleAsync(fixtureEvent);
+            await target.Repository.FixtureEventsInDatabase.AddAsync(
+                FixtureEventInDatabase.GetEntity(fixtureEvent));
+            await target.Repository.SaveChangesAsync();
+            proceed.Invoke();
+        }
     }
+
+    
+
     private readonly ProxyGenerator _generator = new();
     private readonly Type[] _ctorArgTypes = new[] { typeof(FixtureDomainRepository)};
     private readonly IInterceptor _interceptor = new FixtureEventHandlerInterceptor();
@@ -57,5 +58,15 @@ public class FixtureEventHandlersFactory
         TFixtureEventHandler target = (constructorInfo.Invoke(new object[] { repository }) as TFixtureEventHandler)!;
         return (_generator.CreateClassProxyWithTarget(typeof(TFixtureEventHandler),target,
                 new object[] { repository},_interceptor) as TFixtureEventHandler)!;
+    }
+
+    public FixtureEventHandler Create(Type fixtureEventHandlerType,
+        FixtureDomainRepository repository)
+    {
+        ConstructorInfo constructorInfo = fixtureEventHandlerType.GetConstructor(
+            BindingFlags.Instance | BindingFlags.NonPublic, _ctorArgTypes)!;
+        FixtureEventHandler target = (constructorInfo.Invoke(new object[] { repository }) as FixtureEventHandler)!;
+        return (_generator.CreateClassProxyWithTarget(fixtureEventHandlerType, target,
+            new object[] { repository }, _interceptor) as FixtureEventHandler)!;
     }
 }

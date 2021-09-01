@@ -10,14 +10,16 @@ using Microsoft.EntityFrameworkCore;
 namespace LabCMS.FixtureDomain.Shared.Models
 {
     public record Fixture(
-
+        //[Key]
+        //[DatabaseGenerated(DatabaseGeneratedOption.None)]int No,
+        int No,
         string ProjectShortName,
         TestField TestField,
         string SetIndex)
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int No { get; set; }
+        //[Key]
+        //[DatabaseGenerated(DatabaseGeneratedOption.None)]
+        //public int No { get; set; }
 
         [NotMapped]
         public string Description => $"{ProjectShortName}-{this.TestField.ToString().First()}-{SetIndex}";

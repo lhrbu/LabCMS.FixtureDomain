@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace LabCMS.FixtureDomain.Shared.Models
 {
-    public enum TestField
-    {
-        Unknown=0,Environment,Vibration,Photometric,WaterSpray
-    }
+    public record FixtureRegisterPayload(
+        string ProjectShortName,
+        TestField TestField,
+        string SetIndex);
 }

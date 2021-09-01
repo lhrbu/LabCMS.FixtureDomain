@@ -13,7 +13,7 @@ namespace LabCMS.FixtureDomain.Shared.Events
         {
             ApproverUserId = approverUserId;
         }
-        public string ApproverUserId { get; private set; }
+        public string? ApproverUserId { get; set; }
         public override string TypeFullName { get; protected set; } = 
             typeof(FixtureExternalCheckoutApproveEvent).FullName!;
     }

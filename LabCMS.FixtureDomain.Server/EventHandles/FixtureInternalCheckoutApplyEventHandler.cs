@@ -17,5 +17,9 @@ public class FixtureInternalCheckoutApplyEventHandler : FixtureEventHandler
         {
             fixture.Status = FixtureStatus.InternalCheckoutApply;
         }
+        else {
+            throw new InvalidOperationException(
+              $"Fixture No: ${fixtureEvent.FixtureNo} is in checkout procedure");
+        }
     }
 }

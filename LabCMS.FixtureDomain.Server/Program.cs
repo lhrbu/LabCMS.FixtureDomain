@@ -2,6 +2,9 @@ using System;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
+using LabCMS.FixtureDomain.Server.EventHandles;
+using LabCMS.FixtureDomain.Server.Filters;
+using LabCMS.FixtureDomain.Server.Models;
 using LabCMS.FixtureDomain.Server.Repositories;
 using LabCMS.FixtureDomain.Shared.Events;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +22,12 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "LabCMS.FixtureDomain.Server", Version = "v1" });
 });
 builder.Services.AddDbContext<FixtureDomainRepository>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString(nameof(FixtureDomainRepository))));
+    options.UseNpgsql(builder.Configuration.GetConnectionString(nameof(FixtureDomainRepository))))
+    .AddSingleton<FixtureEventHandlersFactory>()
+    .AddScoped<DecodeRoleFromCookieFilter>()
+    .AddSingleton<EmailChannel>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (builder.Environment.IsDevelopment())

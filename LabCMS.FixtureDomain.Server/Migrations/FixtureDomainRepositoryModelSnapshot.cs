@@ -49,7 +49,6 @@ namespace LabCMS.FixtureDomain.Server.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("StorageInformation")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TestField")
@@ -84,6 +83,8 @@ namespace LabCMS.FixtureDomain.Server.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("No");
+
+                    b.HasIndex("ContentTypeFullName");
 
                     b.HasIndex("FixtureNo");
 

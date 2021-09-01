@@ -1,4 +1,5 @@
 ﻿
+using LabCMS.FixtureDomain.Server.Models;
 using LabCMS.FixtureDomain.Server.Repositories;
 using LabCMS.FixtureDomain.Shared.Events;
 using LabCMS.FixtureDomain.Shared.Models;
@@ -16,19 +17,16 @@ public class FixtureExternalCheckoutApplyEventHandler : FixtureEventHandler
         if (fixture.CanCheckout())
         {
             fixture.Status = FixtureStatus.ExternalCheckoutApply;
-
-            try
-            {
-                EmailSendService emailSendService = new("***", "***",
-                     "***");
-                _ = emailSendService.SendEmailAsync("", "", "", "");
-            }
-            catch { }
+            await EmailChannel.AddNotificationEmailAsync(
+                "HNTC_Fixture@Hella.com", Repository.AdminRoles.Select(item => item.Email),
+                 $"no-reply: Fixture{fixtureEvent.FixtureNo} need to checkout",
+                 "<div>Check the link:</div><a href=\"http://10.99.159.149:83/\">link</a>");
+    
         }
         else
         {
             throw new InvalidOperationException(
-                $"Fixture No: ${fixtureEvent.FixtureNo} is in external checkout procedure");
+                $"Fixture No: ${fixtureEvent.FixtureNo} is in checkout procedure");
         }
 
     }

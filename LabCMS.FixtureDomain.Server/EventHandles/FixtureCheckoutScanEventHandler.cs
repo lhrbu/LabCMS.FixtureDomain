@@ -37,6 +37,7 @@ public class FixtureCheckoutScanEventHandler : FixtureEventHandler
                 $"Fixture No:${fixtureEvent.FixtureNo} is checked out by ${applicantUserId} at {DateTimeOffset.Now}";
 
         }
+        else { throw new InvalidOperationException($"Fixture No: ${fixtureEvent.FixtureNo} is not in waiting for Checkout scan status."); }
     }
 }
 

@@ -17,7 +17,7 @@ namespace LabCMS.FixtureDomain.Server.Migrations
                     TestField = table.Column<string>(type: "text", nullable: false),
                     SetIndex = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
-                    StorageInformation = table.Column<string>(type: "text", nullable: false),
+                    StorageInformation = table.Column<string>(type: "text", nullable: true),
                     ShelfNo = table.Column<int>(type: "integer", nullable: false),
                     FloorNo = table.Column<int>(type: "integer", nullable: false),
                     AssetNo = table.Column<string>(type: "text", nullable: true),
@@ -60,6 +60,11 @@ namespace LabCMS.FixtureDomain.Server.Migrations
                         principalColumn: "No",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FixtureEventsInDatabase_ContentTypeFullName",
+                table: "FixtureEventsInDatabase",
+                column: "ContentTypeFullName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FixtureEventsInDatabase_FixtureNo",

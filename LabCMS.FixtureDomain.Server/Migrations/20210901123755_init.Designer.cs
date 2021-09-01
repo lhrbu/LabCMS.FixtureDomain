@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LabCMS.FixtureDomain.Server.Migrations
 {
     [DbContext(typeof(FixtureDomainRepository))]
-    [Migration("20210827150422_init")]
+    [Migration("20210901123755_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,7 +51,6 @@ namespace LabCMS.FixtureDomain.Server.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("StorageInformation")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TestField")
@@ -86,6 +85,8 @@ namespace LabCMS.FixtureDomain.Server.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("No");
+
+                    b.HasIndex("ContentTypeFullName");
 
                     b.HasIndex("FixtureNo");
 

@@ -17,5 +17,6 @@ public class FixtureCheckinScanEventHandler:FixtureEventHandler
             fixture.Status = FixtureStatus.FixtureRoom;
             fixture.StorageInformation = "Fixture Room";
         }
+        else { throw new InvalidOperationException($"Fixture No: ${fixtureEvent.FixtureNo} is not in waiting for Checkin scan status."); }
     }
 }

@@ -17,7 +17,7 @@ namespace LabCMS.FixtureDomain.Shared.Events
             ReceivePlace = receivePlace;
             Comment = comment;
         }
-        public string ApplicantUserId { get; private set; }
+        public string? ApplicantUserId { get; set; }
         public string Receiver { get; private set; }
         public string ReceivePlace { get; private set; }
         public DateTimeOffset CheckoutDate { get; private set; } = DateTimeOffset.Now;
